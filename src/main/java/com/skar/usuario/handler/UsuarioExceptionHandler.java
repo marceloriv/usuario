@@ -4,11 +4,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import com.skar.usuario.dto.ApiRespuestaDto;
 import com.skar.usuario.dto.ApiRespuestaEstados;
 import com.skar.usuario.exception.UsuarioNoEncontradoException;
 import com.skar.usuario.exception.UsuarioYaExisteException;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
+@Hidden
 @RestControllerAdvice
 public class UsuarioExceptionHandler {
 
