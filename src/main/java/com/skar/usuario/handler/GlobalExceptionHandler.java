@@ -46,6 +46,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiRespuestaDto> handleValidationExceptions(MethodArgumentNotValidException ex) {
         String mensaje = "Error de validación";
         if (ex.getBindingResult().getFieldError() != null) {
+            // Obtiene el mensaje de error del campo específico que falló la validación
             mensaje = ex.getBindingResult().getFieldError().getDefaultMessage();
         }
         return ResponseEntity.badRequest()
