@@ -11,24 +11,43 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.skar.usuario.dto.ApiRespuestaDto;
 import com.skar.usuario.dto.ApiRespuestaEstados;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /* 
+     * Metodo para manejar excepciones de tipo NoHandlerFoundException.
+     * Esta excepción se lanza cuando no se encuentra un controlador para una solicitud.
+     */
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiRespuestaDto> noHandlerFoundExceptionHandler(NoHandlerFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Recurso no encontrado"));
     }
 
+
+    /*
+     * Metodo para manejar excepciones de tipo Exception.
+     * Esta excepción se lanza cuando ocurre un error inesperado en la aplicación.
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiRespuestaDto> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest()
                 .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Solicitud mal formada o datos no válidos"));
     }
 
+    /*
+     * Metodo para manejar excepciones de tipo MethodArgumentNotValidException.
+     * Esta excepción se lanza cuando hay errores de validación en los argumentos del método.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiRespuestaDto> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String mensaje = ex.getBindingResult().getFieldError().getDefaultMessage();
+        String mensaje = "Error de validación";
+        if (ex.getBindingResult().getFieldError() != null) {
+            mensaje = ex.getBindingResult().getFieldError().getDefaultMessage();
+        }
         return ResponseEntity.badRequest()
                 .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, mensaje));
     }
