@@ -32,6 +32,7 @@ public class RegistracionUsuarioDto {
     private String contrasena;
 
     @Pattern(regexp = "\\d+", message = "El teléfono debe contener solo números")
+    @Size(min = 11, max = 11, message = "El teléfono debe tener exactamente 11 dígitos")
     private String telefono;
     private String direccion;
 
