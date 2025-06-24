@@ -42,7 +42,11 @@ public class RegistracionUsuarioDto {
 
     @NotNull(message = "El estado no puede estar vacío")
     private Boolean estado;
-
+    /**
+     * 
+     * @param dto
+     * @return  Toma los datos del body y los transforma a un objeto Usuario
+     */
     public Usuario convertirDtoAUsuario(RegistracionUsuarioDto dto) {
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
