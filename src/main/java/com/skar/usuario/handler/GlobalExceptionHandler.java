@@ -38,10 +38,15 @@ public class GlobalExceptionHandler {
                 .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Solicitud mal formada o datos no válidos"));
     }
 
-    /*
-     * Metodo para manejar excepciones de tipo MethodArgumentNotValidException.
-     * Esta excepción se lanza cuando hay errores de validación en los argumentos
-     * del método.
+    /**
+     * Maneja excepciones de tipo MethodArgumentNotValidException. Esta
+     * excepción se lanza cuando hay errores de validación en los argumentos del
+     * método del controlador.
+     *
+     * @param ex la excepción MethodArgumentNotValidException que contiene los
+     *           errores de validación
+     * @return ResponseEntity con ApiRespuestaDto que contiene el estado de
+     *         error y mensaje descriptivo
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiRespuestaDto> handleValidationExceptions(MethodArgumentNotValidException ex) {
