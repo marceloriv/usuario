@@ -20,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.skar.usuario.dto.ApiRespuestaDto;
 import com.skar.usuario.dto.ApiRespuestaEstados;
 import com.skar.usuario.dto.RegistracionUsuarioDto;
+import com.skar.usuario.exception.ErrorLogicaServicioUsuarioException;
 import com.skar.usuario.exception.UsuarioYaExisteException;
 import com.skar.usuario.model.Rol;
 import com.skar.usuario.model.Usuario;
@@ -131,6 +132,19 @@ public class UsuarioServiceTest {
         assertEquals(ApiRespuestaEstados.ERROR, apiResponse.getEstado());
         assertEquals("Usuario no encontrado con el email: " + email, apiResponse.getMensaje());
 
+        verify(repositorioUsuario, times(1)).findByEmail(email);
+    }
+
+    @Test
+    void testObtenerUsuarioPorEmail_Excepcion() {
+        String email = "test@gmail.com";
+        when(repositorioUsuario.findByEmail(email)).thenThrow(new RuntimeException("Error inesperado"));
+
+        ErrorLogicaServicioUsuarioException exception = assertThrows(ErrorLogicaServicioUsuarioException.class, () -> {
+            usuarioService.obtenerUsuarioPorEmail(email);
+        });
+
+        assertEquals("Error en la lógica del servicio de usuario: Error inesperado", exception.getMessage());
         verify(repositorioUsuario, times(1)).findByEmail(email);
     }
 }
