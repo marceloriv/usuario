@@ -40,7 +40,7 @@ public class UsuarioServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Inicializar Usuario de prueba
+
         usuario = new Usuario();
         usuario.setId(1L);
         usuario.setNombre("Juan");
@@ -52,7 +52,6 @@ public class UsuarioServiceTest {
         usuario.setRol("EMPLEADO");
         usuario.setEstado(true);
 
-        // Inicializar DTO de registración
         registracionUsuarioDto = new RegistracionUsuarioDto();
         registracionUsuarioDto.setNombre("Juan");
         registracionUsuarioDto.setApellidos("Lopez Garcia");
@@ -66,14 +65,11 @@ public class UsuarioServiceTest {
 
     @Test
     void testRegistrarUsuario_Exitoso() throws Exception {
-        // Arrange: Configurar mocks para simular que el usuario no existe
         when(repositorioUsuario.findByEmail(registracionUsuarioDto.getEmail())).thenReturn(null);
         when(repositorioUsuario.save(any(Usuario.class))).thenReturn(usuario);
 
-        // Act: Ejecutar el método a probar
         ResponseEntity<ApiRespuestaDto> response = usuarioService.registrarUsuario(registracionUsuarioDto);
 
-        // Assert: Verificar que el resultado es el esperado
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -81,40 +77,32 @@ public class UsuarioServiceTest {
         assertEquals(ApiRespuestaEstados.EXITO, responseBody.getEstado());
         assertEquals("Usuario registrado exitosamente", responseBody.getMensaje());
 
-        // Verificar que se llamaron los métodos del repositorio
         verify(repositorioUsuario, times(1)).findByEmail(registracionUsuarioDto.getEmail());
         verify(repositorioUsuario, times(1)).save(any(Usuario.class));
     }
 
     @Test
     void testRegistrarUsuario_UsuarioYaExiste() {
-        // Arrange: Configurar mock para simular que el usuario ya existe
         when(repositorioUsuario.findByEmail(registracionUsuarioDto.getEmail())).thenReturn(usuario);
 
-        // Act & Assert: Verificar que se lanza la excepción esperada
         UsuarioYaExisteException exception = assertThrows(UsuarioYaExisteException.class, () -> {
             usuarioService.registrarUsuario(registracionUsuarioDto);
         });
 
-        // Verificar el mensaje de la excepción
         assertEquals("El usuario ya existe con el email: " + registracionUsuarioDto.getEmail(),
                 exception.getMessage());
 
-        // Verificar que se llamó al método de búsqueda pero no al de guardar
         verify(repositorioUsuario, times(1)).findByEmail(registracionUsuarioDto.getEmail());
         verify(repositorioUsuario, never()).save(any(Usuario.class));
     }
 
     @Test
     void testObtenerUsuarioPorEmail_UsuarioEncontrado() throws Exception {
-        // Arrange: Configurar mock para simular que se encuentra el usuario
         String email = "juanito@gmail.com";
         when(repositorioUsuario.findByEmail(email)).thenReturn(usuario);
 
-        // Act: Ejecutar el método a probar
         ResponseEntity<Object> response = usuarioService.obtenerUsuarioPorEmail(email);
 
-        // Assert: Verificar que el resultado es el esperado
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -124,20 +112,16 @@ public class UsuarioServiceTest {
         assertEquals(email, usuarioRetornado.getEmail());
         assertEquals("Juan", usuarioRetornado.getNombre());
 
-        // Verificar que se llamó al método del repositorio
         verify(repositorioUsuario, times(1)).findByEmail(email);
     }
 
     @Test
     void testObtenerUsuarioPorEmail_UsuarioNoEncontrado() throws Exception {
-        // Arrange: Configurar mock para simular que no se encuentra el usuario
         String email = "noexiste@gmail.com";
         when(repositorioUsuario.findByEmail(email)).thenReturn(null);
 
-        // Act: Ejecutar el método a probar
         ResponseEntity<Object> response = usuarioService.obtenerUsuarioPorEmail(email);
 
-        // Assert: Verificar que el resultado es el esperado
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -147,7 +131,6 @@ public class UsuarioServiceTest {
         assertEquals(ApiRespuestaEstados.ERROR, apiResponse.getEstado());
         assertEquals("Usuario no encontrado con el email: " + email, apiResponse.getMensaje());
 
-        // Verificar que se llamó al método del repositorio
         verify(repositorioUsuario, times(1)).findByEmail(email);
     }
 }
