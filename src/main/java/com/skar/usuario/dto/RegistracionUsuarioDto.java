@@ -3,7 +3,6 @@ package com.skar.usuario.dto;
 import com.skar.usuario.model.Rol;
 import com.skar.usuario.model.Usuario;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -36,27 +35,27 @@ public class RegistracionUsuarioDto {
     private String telefono;
     private String direccion;
 
-    @Column(nullable = false, unique = true)
     @NotNull(message = "El rol no puede estar vacío")
     private Rol rol;
 
     @NotNull(message = "El estado no puede estar vacío")
     private Boolean estado;
+
     /**
-     * 
-     * @param dto
-     * @return  Toma los datos del body y los transforma a un objeto Usuario
+     * Convierte este DTO a un objeto Usuario
+     *
+     * @return Usuario creado a partir de este DTO
      */
-    public Usuario convertirDtoAUsuario(RegistracionUsuarioDto dto) {
+    public Usuario convertirDtoAUsuario() {
         Usuario usuario = new Usuario();
-        usuario.setNombre(dto.getNombre());
-        usuario.setApellidos(dto.getApellidos());
-        usuario.setEmail(dto.getEmail());
-        usuario.setContrasena(dto.getContrasena());
-        usuario.setTelefono(dto.getTelefono());
-        usuario.setDireccion(dto.getDireccion());
-        usuario.setRol(dto.getRol().name());
-        usuario.setEstado(dto.getEstado());
+        usuario.setNombre(this.nombre);
+        usuario.setApellidos(this.apellidos);
+        usuario.setEmail(this.email);
+        usuario.setContrasena(this.contrasena);
+        usuario.setTelefono(this.telefono);
+        usuario.setDireccion(this.direccion);
+        usuario.setRol(this.rol.name());
+        usuario.setEstado(this.estado);
         return usuario;
     }
 }
