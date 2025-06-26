@@ -55,7 +55,8 @@ public class UsuarioServiceImp implements UsuarioService {
             Usuario usuario = repositorioUsuario.findByEmail(email);
             if (usuario == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el email: " + email));
+                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
+                                "Usuario no encontrado con el email: " + email));
             }
             return ResponseEntity.ok(usuario); // Devuelve el usuario encontrado
         } catch (Exception e) {
@@ -64,12 +65,14 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public ResponseEntity<Object> obtenerUsuarioPorTelefono(String telefono) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> obtenerUsuarioPorTelefono(String telefono)
+            throws ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findByTelefono(telefono);
             if (usuarioOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el teléfono: " + telefono));
+                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
+                                "Usuario no encontrado con el teléfono: " + telefono));
             }
             return ResponseEntity.ok(usuarioOpt.get());
         } catch (Exception e) {
@@ -97,7 +100,8 @@ public class UsuarioServiceImp implements UsuarioService {
             List<Usuario> usuarios = repositorioUsuario.findByNombre(nombre);
             if (usuarios.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "No se encontraron usuarios con el nombre: " + nombre));
+                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
+                                "No se encontraron usuarios con el nombre: " + nombre));
             }
             return ResponseEntity.ok(usuarios);
         } catch (Exception e) {
@@ -111,7 +115,8 @@ public class UsuarioServiceImp implements UsuarioService {
             List<Usuario> usuarios = repositorioUsuario.findByEstado(estado);
             if (usuarios.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "No se encontraron usuarios con el estado: " + estado));
+                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
+                                "No se encontraron usuarios con el estado: " + estado));
             }
             return ResponseEntity.ok(usuarios);
         } catch (Exception e) {
@@ -134,7 +139,8 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public ResponseEntity<Object> actualizarUsuario(Long id, Usuario usuarioActualizado) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> actualizarUsuario(Long id, Usuario usuarioActualizado)
+            throws ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
@@ -143,7 +149,8 @@ public class UsuarioServiceImp implements UsuarioService {
             }
             usuarioActualizado.setId(id);
             repositorioUsuario.save(usuarioActualizado);
-            return ResponseEntity.ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario actualizado exitosamente"));
+            return ResponseEntity
+                    .ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario actualizado exitosamente"));
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
@@ -165,7 +172,8 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public ResponseEntity<Object> cambiarEstadoUsuario(Long id, Boolean estado) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> cambiarEstadoUsuario(Long id, Boolean estado)
+            throws ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
@@ -175,7 +183,8 @@ public class UsuarioServiceImp implements UsuarioService {
             Usuario usuario = usuarioOpt.get();
             usuario.setEstado(estado);
             repositorioUsuario.save(usuario);
-            return ResponseEntity.ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Estado del usuario actualizado exitosamente"));
+            return ResponseEntity
+                    .ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Estado del usuario actualizado exitosamente"));
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
@@ -192,14 +201,16 @@ public class UsuarioServiceImp implements UsuarioService {
             }
 
             Usuario usuario = usuarioOpt.get();
-            if (!usuario.getEmail().equals(usuarioDto.getEmail()) && repositorioUsuario.findByEmail(usuarioDto.getEmail()) != null) {
+            if (!usuario.getEmail().equals(usuarioDto.getEmail())
+                    && repositorioUsuario.findByEmail(usuarioDto.getEmail()) != null) {
                 throw new UsuarioYaExisteException("El email ya está en uso: " + usuarioDto.getEmail());
             }
 
             Usuario usuarioActualizado = usuarioDto.convertirDtoAUsuario();
             usuarioActualizado.setId(id);
             repositorioUsuario.save(usuarioActualizado);
-            return ResponseEntity.ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario actualizado exitosamente"));
+            return ResponseEntity
+                    .ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario actualizado exitosamente"));
         } catch (UsuarioYaExisteException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, e.getMessage()));
