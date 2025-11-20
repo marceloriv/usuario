@@ -30,16 +30,13 @@ public class RegistracionUsuarioDto {
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String contrasena;
 
-    @Pattern(regexp = "\\d+", message = "El teléfono debe contener solo números")
-    @Size(min = 11, max = 11, message = "El teléfono debe tener exactamente 11 dígitos")
-    private String telefono;
+    @Pattern(regexp = "\\d*", message = "El teléfono debe contener solo números")
+    private String telefono; // Opcional
     private String direccion;
 
-    @NotNull(message = "El rol no puede estar vacío")
-    private Rol rol;
+    private Rol rol; // Opcional, default: USUARIO
 
-    @NotNull(message = "El estado no puede estar vacío")
-    private Boolean estado;
+    private Boolean estado; // Opcional, default: true
 
     /**
      * Convierte este DTO a un objeto Usuario
@@ -54,8 +51,9 @@ public class RegistracionUsuarioDto {
         usuario.setContrasena(this.contrasena);
         usuario.setTelefono(this.telefono);
         usuario.setDireccion(this.direccion);
-        usuario.setRol(this.rol.name());
-        usuario.setEstado(this.estado);
+        // Aplicar valores por defecto si no se proporcionan
+        usuario.setRol(this.rol != null ? this.rol.name() : "USUARIO");
+        usuario.setEstado(this.estado != null ? this.estado : true);
         return usuario;
     }
 }
