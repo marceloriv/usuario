@@ -59,16 +59,17 @@ public class UsuarioExceptionHandler {
      * </ul>
      *
      * @param exception la excepción UsuarioNoEncontradoException que contiene
-     * el mensaje específico sobre qué usuario no se encontró
+     *                  el mensaje específico sobre qué usuario no se encontró
      * @return ResponseEntity con estado HTTP 404 (NOT_FOUND) y un cuerpo que
-     * contiene el estado de error y el mensaje de la excepción
+     *         contiene el estado de error y el mensaje de la excepción
      *
      * @see UsuarioNoEncontradoException
      * @see HttpStatus#NOT_FOUND
      */
     @ExceptionHandler(value = UsuarioNoEncontradoException.class)
     public ResponseEntity<ApiRespuestaDto> usuarioNoEncontradoExceptionHandler(UsuarioNoEncontradoException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, exception.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, exception.getMessage()));
     }
 
     /**
@@ -89,16 +90,18 @@ public class UsuarioExceptionHandler {
      * </ul>
      *
      * @param exception la excepción UsuarioYaExisteException que contiene el
-     * mensaje específico sobre qué campo del usuario está duplicado
+     *                  mensaje específico sobre qué campo del usuario está
+     *                  duplicado
      * @return ResponseEntity con estado HTTP 409 (CONFLICT) y un cuerpo que
-     * contiene el estado de error y el mensaje de la excepción
+     *         contiene el estado de error y el mensaje de la excepción
      *
      * @see UsuarioYaExisteException
      * @see HttpStatus#CONFLICT
      */
     @ExceptionHandler(value = UsuarioYaExisteException.class)
     public ResponseEntity<ApiRespuestaDto> usuarioYaExisteExceptionHandler(UsuarioYaExisteException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, exception.getMessage()));
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, exception.getMessage()));
     }
 
 }
