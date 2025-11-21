@@ -53,14 +53,15 @@ public class GlobalExceptionHandler {
      * Ejemplos de cuándo se produce:
      * </p>
      * <ul>
-     *   <li>GET /api/v1/endpoint-inexistente</li>
-     *   <li>POST /api/v2/usuarios (si no existe la versión v2)</li>
-     *   <li>PUT /api/v1/usuarios/accion-inexistente</li>
+     * <li>GET /api/v1/endpoint-inexistente</li>
+     * <li>POST /api/v2/usuarios (si no existe la versión v2)</li>
+     * <li>PUT /api/v1/usuarios/accion-inexistente</li>
      * </ul>
      * 
-     * @param exception la excepción NoHandlerFoundException que contiene información
+     * @param exception la excepción NoHandlerFoundException que contiene
+     *                  información
      *                  sobre la URL no encontrada y el método HTTP utilizado
-     * @return ResponseEntity con estado HTTP 404 (NOT_FOUND) y un mensaje 
+     * @return ResponseEntity con estado HTTP 404 (NOT_FOUND) y un mensaje
      *         indicando que el recurso no fue encontrado
      * 
      * @since 1.0.0
@@ -84,11 +85,11 @@ public class GlobalExceptionHandler {
      * Casos comunes que producen esta excepción:
      * </p>
      * <ul>
-     *   <li>JSON mal formado (sintaxis incorrecta, llaves sin cerrar, etc.)</li>
-     *   <li>Tipos de datos incompatibles (enviar string donde se espera número)</li>
-     *   <li>Estructura JSON que no coincide con el DTO esperado</li>
-     *   <li>Caracteres especiales no válidos o codificación incorrecta</li>
-     *   <li>Campos requeridos omitidos en el JSON</li>
+     * <li>JSON mal formado (sintaxis incorrecta, llaves sin cerrar, etc.)</li>
+     * <li>Tipos de datos incompatibles (enviar string donde se espera número)</li>
+     * <li>Estructura JSON que no coincide con el DTO esperado</li>
+     * <li>Caracteres especiales no válidos o codificación incorrecta</li>
+     * <li>Campos requeridos omitidos en el JSON</li>
      * </ul>
      * 
      * @param ex la excepción HttpMessageNotReadableException que contiene
@@ -101,12 +102,13 @@ public class GlobalExceptionHandler {
      * @see HttpStatus#BAD_REQUEST
      * 
      * @example
-     * <pre>
+     * 
+     *          <pre>
      * // JSON mal formado que produciría esta excepción:
      * {"nombre": "Juan" "apellidos": "Pérez"}  // Falta coma
      * {"email": 12345}                         // Tipo incorrecto
      * {"nombre": }                             // Valor faltante
-     * </pre>
+     *          </pre>
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiRespuestaDto> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
@@ -122,12 +124,13 @@ public class GlobalExceptionHandler {
      * {@code @Valid}. Las validaciones incluyen anotaciones como:
      * </p>
      * <ul>
-     *   <li>{@code @NotNull} - El campo no puede ser nulo</li>
-     *   <li>{@code @NotBlank} - El campo no puede estar vacío o contener solo espacios</li>
-     *   <li>{@code @Email} - El campo debe ser un email válido</li>
-     *   <li>{@code @Size} - El campo debe cumplir restricciones de tamaño</li>
-     *   <li>{@code @Pattern} - El campo debe coincidir con una expresión regular</li>
-     *   <li>{@code @Min/@Max} - Validaciones de valores numéricos</li>
+     * <li>{@code @NotNull} - El campo no puede ser nulo</li>
+     * <li>{@code @NotBlank} - El campo no puede estar vacío o contener solo
+     * espacios</li>
+     * <li>{@code @Email} - El campo debe ser un email válido</li>
+     * <li>{@code @Size} - El campo debe cumplir restricciones de tamaño</li>
+     * <li>{@code @Pattern} - El campo debe coincidir con una expresión regular</li>
+     * <li>{@code @Min/@Max} - Validaciones de valores numéricos</li>
      * </ul>
      * <p>
      * El método extrae el primer error de validación encontrado y construye
@@ -148,14 +151,15 @@ public class GlobalExceptionHandler {
      * @see HttpStatus#BAD_REQUEST
      * 
      * @example
-     * <pre>
+     * 
+     *          <pre>
      * // Entrada que produciría esta excepción:
      * {"email": "correo-invalido", "nombre": ""}
      * // Respuesta: "email: debe ser una dirección de correo electrónico válida"
      * 
      * {"telefono": "+34123", "email": "test@example.com"}
      * // Respuesta: "telefono: debe tener al menos 10 caracteres"
-     * </pre>
+     *          </pre>
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiRespuestaDto> handleValidationExceptions(MethodArgumentNotValidException ex) {

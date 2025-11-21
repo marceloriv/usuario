@@ -34,12 +34,15 @@ public class UsuarioYaExisteException extends Exception {
      * </p>
      *
      * @param message mensaje descriptivo que explica por qué el usuario ya
-     * existe. Debería incluir información específica sobre el campo duplicado.
+     *                existe. Debería incluir información específica sobre el campo
+     *                duplicado.
      *
-     * @example      <pre>
-     * throw new UsuarioYaExisteException("Ya existe un usuario con el email: juan@example.com");
-     * throw new UsuarioYaExisteException("Ya existe un usuario con el teléfono: +34123456789");
-     * </pre>
+     * @example
+     * 
+     *          <pre>
+     *          throw new UsuarioYaExisteException("Ya existe un usuario con el email: juan@example.com");
+     *          throw new UsuarioYaExisteException("Ya existe un usuario con el teléfono: +34123456789");
+     *          </pre>
      */
     public UsuarioYaExisteException(String message) {
         super(message);

@@ -40,19 +40,22 @@ public class UsuarioNoEncontradoException extends Exception {
      * </p>
      *
      * @param message mensaje descriptivo que explica qué usuario se estaba
-     * buscando. Debería incluir información específica sobre el criterio de
-     * búsqueda utilizado (email, teléfono, ID, etc.).
+     *                buscando. Debería incluir información específica sobre el
+     *                criterio de
+     *                búsqueda utilizado (email, teléfono, ID, etc.).
      *
-     * @example      <pre>
-     * throw new UsuarioNoEncontradoException("juan@example.com");
-     * // Resultado: "Usuario no encontrado: juan@example.com"
+     * @example
+     * 
+     *          <pre>
+     *          throw new UsuarioNoEncontradoException("juan@example.com");
+     *          // Resultado: "Usuario no encontrado: juan@example.com"
      *
-     * throw new UsuarioNoEncontradoException("con teléfono +34123456789");
-     * // Resultado: "Usuario no encontrado: con teléfono +34123456789"
+     *          throw new UsuarioNoEncontradoException("con teléfono +34123456789");
+     *          // Resultado: "Usuario no encontrado: con teléfono +34123456789"
      *
-     * throw new UsuarioNoEncontradoException("con ID 123");
-     * // Resultado: "Usuario no encontrado: con ID 123"
-     * </pre>
+     *          throw new UsuarioNoEncontradoException("con ID 123");
+     *          // Resultado: "Usuario no encontrado: con ID 123"
+     *          </pre>
      */
     public UsuarioNoEncontradoException(String message) {
         super("Usuario no encontrado: " + message);
