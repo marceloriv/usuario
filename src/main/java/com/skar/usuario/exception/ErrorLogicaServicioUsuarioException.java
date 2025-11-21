@@ -45,20 +45,27 @@ public class ErrorLogicaServicioUsuarioException extends Exception {
      * </p>
      *
      * @param message mensaje descriptivo que explica qué error específico
-     * ocurrió en la lógica del servicio. Debería incluir información detallada
-     * sobre la operación que falló y, si es posible, sugerencias para la
-     * resolución.
+     *                ocurrió en la lógica del servicio. Debería incluir información
+     *                detallada
+     *                sobre la operación que falló y, si es posible, sugerencias
+     *                para la
+     *                resolución.
      *
-     * @example      <pre>
-     * throw new ErrorLogicaServicioUsuarioException("No se puede eliminar un usuario activo con pedidos pendientes");
-     * // Resultado: "Error en la lógica del servicio de usuario: No se puede eliminar un usuario activo con pedidos pendientes"
+     * @example
+     * 
+     *          <pre>
+     *          throw new ErrorLogicaServicioUsuarioException("No se puede eliminar un usuario activo con pedidos pendientes");
+     *          // Resultado: "Error en la lógica del servicio de usuario: No se puede
+     *          // eliminar un usuario activo con pedidos pendientes"
      *
-     * throw new ErrorLogicaServicioUsuarioException("El rol especificado no es válido para este tipo de usuario");
-     * // Resultado: "Error en la lógica del servicio de usuario: El rol especificado no es válido para este tipo de usuario"
+     *          throw new ErrorLogicaServicioUsuarioException("El rol especificado no es válido para este tipo de usuario");
+     *          // Resultado: "Error en la lógica del servicio de usuario: El rol
+     *          // especificado no es válido para este tipo de usuario"
      *
-     * throw new ErrorLogicaServicioUsuarioException("Falló la transacción al actualizar el perfil del usuario");
-     * // Resultado: "Error en la lógica del servicio de usuario: Falló la transacción al actualizar el perfil del usuario"
-     * </pre>
+     *          throw new ErrorLogicaServicioUsuarioException("Falló la transacción al actualizar el perfil del usuario");
+     *          // Resultado: "Error en la lógica del servicio de usuario: Falló la
+     *          // transacción al actualizar el perfil del usuario"
+     *          </pre>
      */
     public ErrorLogicaServicioUsuarioException(String message) {
         super("Error en la lógica del servicio de usuario: " + message);
