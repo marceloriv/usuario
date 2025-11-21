@@ -40,31 +40,36 @@ public class UsuarioController {
 
     @GetMapping("/{mail}")
     @Operation(summary = "Obtener usuario por email", description = "Permite obtener un usuario a partir de su email")
-    public ResponseEntity<Object> obtenerUsuarioPorEmail(@PathVariable String mail) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> obtenerUsuarioPorEmail(@PathVariable String mail)
+            throws ErrorLogicaServicioUsuarioException {
         return usuarioService.obtenerUsuarioPorEmail(mail);
     }
 
     @GetMapping("/telefono/{telefono}")
     @Operation(summary = "Obtener usuario por teléfono", description = "Permite obtener un usuario a partir de su número de teléfono")
-    public ResponseEntity<Object> obtenerUsuarioPorTelefono(@PathVariable String telefono) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> obtenerUsuarioPorTelefono(@PathVariable String telefono)
+            throws ErrorLogicaServicioUsuarioException {
         return usuarioService.obtenerUsuarioPorTelefono(telefono);
     }
 
     @GetMapping("/id/{id}")
     @Operation(summary = "Obtener usuario por ID", description = "Permite obtener un usuario a partir de su ID")
-    public ResponseEntity<Object> obtenerUsuarioPorId(@PathVariable Long id) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> obtenerUsuarioPorId(@PathVariable Long id)
+            throws ErrorLogicaServicioUsuarioException {
         return usuarioService.obtenerUsuarioPorId(id);
     }
 
     @GetMapping("/nombre/{nombre}")
     @Operation(summary = "Obtener usuario por nombre", description = "Permite obtener usuarios a partir de su nombre")
-    public ResponseEntity<Object> obtenerUsuarioPorNombre(@PathVariable String nombre) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> obtenerUsuarioPorNombre(@PathVariable String nombre)
+            throws ErrorLogicaServicioUsuarioException {
         return usuarioService.obtenerUsuarioPorNombre(nombre);
     }
 
     @GetMapping("/estado/{estado}")
     @Operation(summary = "Obtener usuarios por estado", description = "Permite obtener usuarios activos o inactivos")
-    public ResponseEntity<Object> obtenerPorEstado(@PathVariable Boolean estado) throws ErrorLogicaServicioUsuarioException {
+    public ResponseEntity<Object> obtenerPorEstado(@PathVariable Boolean estado)
+            throws ErrorLogicaServicioUsuarioException {
         return usuarioService.obtenerPorEstado(estado);
     }
 
@@ -96,7 +101,8 @@ public class UsuarioController {
 
     @PutMapping("/{id}/actualizar")
     @Operation(summary = "Actualizar usuario por ID", description = "Permite actualizar los datos de un usuario a partir de su ID")
-    public ResponseEntity<Object> actualizarUsuarioPorId(@PathVariable Long id, @RequestBody RegistracionUsuarioDto usuarioDto)
+    public ResponseEntity<Object> actualizarUsuarioPorId(@PathVariable Long id,
+            @RequestBody RegistracionUsuarioDto usuarioDto)
             throws ErrorLogicaServicioUsuarioException, UsuarioYaExisteException {
         return usuarioService.actualizarUsuarioPorId(id, usuarioDto);
     }
