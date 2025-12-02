@@ -1,48 +1,45 @@
 package com.skar.usuario.service;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.skar.usuario.dto.ApiRespuestaDto;
+
 import com.skar.usuario.dto.RegistracionUsuarioDto;
 import com.skar.usuario.exception.ErrorLogicaServicioUsuarioException;
 import com.skar.usuario.exception.UsuarioYaExisteException;
+import com.skar.usuario.exception.UsuarioNoEncontradoException;
 import com.skar.usuario.model.Usuario;
 
-@Service
 public interface UsuarioService {
 
-        ResponseEntity<ApiRespuestaDto> registrarUsuario(RegistracionUsuarioDto nuevoUsuarioDto)
-                        throws UsuarioYaExisteException, ErrorLogicaServicioUsuarioException;
+    Usuario registrarUsuario(RegistracionUsuarioDto nuevoUsuarioDto)
+            throws UsuarioYaExisteException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> obtenerUsuarioPorEmail(String email)
-                        throws ErrorLogicaServicioUsuarioException;
+    Usuario obtenerUsuarioPorEmail(String email)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> obtenerUsuarioPorTelefono(String telefono)
-                        throws ErrorLogicaServicioUsuarioException;
+    Usuario obtenerUsuarioPorTelefono(String telefono)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> obtenerUsuarioPorId(Long id)
-                        throws ErrorLogicaServicioUsuarioException;
+    Usuario obtenerUsuarioPorId(Long id)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> obtenerUsuarioPorNombre(String nombre)
-                        throws ErrorLogicaServicioUsuarioException;
+    List<Usuario> obtenerUsuarioPorNombre(String nombre)
+            throws ErrorLogicaServicioUsuarioException; // Lista vacía posible
 
-        ResponseEntity<Object> obtenerPorEstado(Boolean estado)
-                        throws ErrorLogicaServicioUsuarioException;
+    List<Usuario> obtenerPorEstado(Boolean estado)
+            throws ErrorLogicaServicioUsuarioException; // Lista vacía posible
 
-        ResponseEntity<Object> obtenerTodosLosUsuarios()
-                        throws ErrorLogicaServicioUsuarioException;
+    List<Usuario> obtenerTodosLosUsuarios() throws ErrorLogicaServicioUsuarioException; // Lista vacía posible
 
-        ResponseEntity<Object> actualizarUsuario(Long id, Usuario usuarioActualizado)
-                        throws ErrorLogicaServicioUsuarioException;
+    Usuario actualizarUsuario(Long id, Usuario usuarioActualizado)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> eliminarUsuario(Long id)
-                        throws ErrorLogicaServicioUsuarioException;
+    void eliminarUsuario(Long id) throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> cambiarEstadoUsuario(Long id, Boolean estado)
-                        throws ErrorLogicaServicioUsuarioException;
+    Usuario cambiarEstadoUsuario(Long id, Boolean estado)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
 
-        ResponseEntity<Object> actualizarUsuarioPorId(Long id, RegistracionUsuarioDto usuarioDto)
-                        throws ErrorLogicaServicioUsuarioException, UsuarioYaExisteException;
+    Usuario actualizarUsuarioPorId(Long id, RegistracionUsuarioDto usuarioDto)
+            throws UsuarioNoEncontradoException, UsuarioYaExisteException, ErrorLogicaServicioUsuarioException;
 
 }

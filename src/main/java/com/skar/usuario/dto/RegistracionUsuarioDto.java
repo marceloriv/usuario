@@ -33,7 +33,7 @@ public class RegistracionUsuarioDto {
     private String telefono; // Opcional
     private String direccion;
 
-    private Rol rol; // Opcional, default: USUARIO
+    private Rol rol; // Opcional, default: CLIENTE
 
     private Boolean estado; // Opcional, default: true
 
@@ -51,7 +51,7 @@ public class RegistracionUsuarioDto {
         usuario.setTelefono(this.telefono);
         usuario.setDireccion(this.direccion);
         // Aplicar valores por defecto si no se proporcionan
-        usuario.setRol(this.rol != null ? this.rol.name() : "USUARIO");
+        usuario.setRol(this.rol != null ? this.rol : Rol.CLIENTE);
         usuario.setEstado(this.estado != null ? this.estado : true);
         return usuario;
     }

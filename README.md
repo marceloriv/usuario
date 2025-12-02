@@ -240,22 +240,32 @@ Content-Type: application/json
 java -jar target/usuario-0.0.1-SNAPSHOT.jar
 ```
 
-### Docker (Opcional)
-
-```dockerfile
-FROM openjdk:17-jdk-slim
-VOLUME /tmp
-COPY target/usuario-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
-```
-
 ## 🔧 Configuración Avanzada
 
 ### Perfiles de Spring
 
-- **Desarrollo**: `application-dev.properties`
-- **Producción**: `application-prod.properties`
+- **Por defecto (H2)**: `application.properties` (H2 en memoria, útil para desarrollo rápido)
+- **Local (Laragon/MySQL)**: `application-local.properties`
+- **Producción (RDS u otro MySQL)**: `application-prod.properties`
 - **Testing**: `application-test.properties`
+
+#### Ejecutar con perfiles (PowerShell en Windows)
+
+```powershell
+# Limpiar variables de entorno que puedan forzar MySQL remoto (opcional)
+Remove-Item Env:SPRING_DATASOURCE_URL,Env:SPRING_DATASOURCE_USERNAME,Env:SPRING_DATASOURCE_PASSWORD,Env:SPRING_DATASOURCE_DRIVER_CLASS_NAME,Env:SPRING_JPA_HIBERNATE_DDL_AUTO,Env:SPRING_JPA_SHOW_SQL,Env:SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL -ErrorAction SilentlyContinue
+
+# H2 por defecto (sin perfil activo)
+./mvnw spring-boot:run
+
+# MySQL local con Laragon (perfil local)
+$env:SPRING_PROFILES_ACTIVE='local'; ./mvnw spring-boot:run
+
+# Producción (perfil prod, credenciales por variables de entorno)
+$env:SPRING_PROFILES_ACTIVE='prod'; ./mvnw spring-boot:run
+```
+
+En `application-local.properties` se asume MySQL de Laragon en `127.0.0.1:3306` con usuario `root` y contraseña vacía. Ajusta `spring.datasource.username/password` si tu Laragon tiene credenciales distintas.
 
 ### Logging
 
@@ -289,8 +299,9 @@ logging.level.org.springframework.web=INFO
 1. **Error de conexión a la base de datos**
 
    - Verificar que MySQL esté ejecutándose
-   - Comprobar las credenciales en el archivo `.env`
+   - Comprobar las credenciales del perfil activo (p. ej., `application-local.properties`)
    - Asegurar que la base de datos existe
+   - Si usas RDS: la instancia debe ser accesible públicamente o via túnel, y el Security Group debe permitir tu IP
 
 2. **Puerto ya en uso**
 

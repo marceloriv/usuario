@@ -9,6 +9,7 @@ import com.skar.usuario.dto.ApiRespuestaDto;
 import com.skar.usuario.dto.ApiRespuestaEstados;
 import com.skar.usuario.exception.UsuarioNoEncontradoException;
 import com.skar.usuario.exception.UsuarioYaExisteException;
+import com.skar.usuario.exception.ErrorLogicaServicioUsuarioException;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -101,6 +102,17 @@ public class UsuarioExceptionHandler {
     @ExceptionHandler(value = UsuarioYaExisteException.class)
     public ResponseEntity<ApiRespuestaDto> usuarioYaExisteExceptionHandler(UsuarioYaExisteException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, exception.getMessage()));
+    }
+
+    /**
+     * Maneja errores de lógica del servicio usuario.
+     * Devuelve 422 (UNPROCESSABLE_ENTITY) para indicar que la petición es válida sintácticamente
+     * pero no puede procesarse por reglas de negocio.
+     */
+    @ExceptionHandler(value = ErrorLogicaServicioUsuarioException.class)
+    public ResponseEntity<ApiRespuestaDto> errorLogicaServicioUsuarioExceptionHandler(ErrorLogicaServicioUsuarioException exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, exception.getMessage()));
     }
 

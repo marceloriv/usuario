@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
-import com.skar.usuario.dto.ApiRespuestaDto;
-import com.skar.usuario.dto.ApiRespuestaEstados;
 import com.skar.usuario.dto.RegistracionUsuarioDto;
 import com.skar.usuario.exception.ErrorLogicaServicioUsuarioException;
+import com.skar.usuario.exception.UsuarioNoEncontradoException;
 import com.skar.usuario.exception.UsuarioYaExisteException;
 import com.skar.usuario.model.Usuario;
 import com.skar.usuario.repository.RepositorioUsuario;
@@ -25,24 +25,27 @@ public class UsuarioServiceImp implements UsuarioService {
     @Autowired
     private RepositorioUsuario repositorioUsuario;
 
-    @Override
-    public ResponseEntity<ApiRespuestaDto> registrarUsuario(RegistracionUsuarioDto nuevoUsuarioDto)
-            throws UsuarioYaExisteException, ErrorLogicaServicioUsuarioException {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
+    @Override
+    @Transactional
+    public Usuario registrarUsuario(RegistracionUsuarioDto nuevoUsuarioDto)
+            throws UsuarioYaExisteException, ErrorLogicaServicioUsuarioException {
         try {
             if (repositorioUsuario.findByEmail(nuevoUsuarioDto.getEmail()) != null) {
                 throw new UsuarioYaExisteException("El usuario ya existe con el email: " + nuevoUsuarioDto.getEmail());
             }
-
             Usuario nuevoUsuario = nuevoUsuarioDto.convertirDtoAUsuario();
-            repositorioUsuario.save(nuevoUsuario);
-
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario registrado exitosamente"));
-
+            // Hash de contraseña
+            if (nuevoUsuario.getContrasena() != null) {
+                nuevoUsuario.setContrasena(passwordEncoder.encode(nuevoUsuario.getContrasena()));
+            }
+            return repositorioUsuario.save(nuevoUsuario);
         } catch (UsuarioYaExisteException e) {
-            // Re-lanzar la excepción para que sea manejada por el GlobalExceptionHandler
             throw e;
+        } catch (DataIntegrityViolationException e) {
+            throw new ErrorLogicaServicioUsuarioException("Violación de integridad de datos: " + e.getMostSpecificCause().getMessage());
         } catch (Exception e) {
             log.error("Error al registrar el usuario: {}", e.getMessage());
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
@@ -50,170 +53,175 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public ResponseEntity<Object> obtenerUsuarioPorEmail(String email) throws ErrorLogicaServicioUsuarioException {
+    public Usuario obtenerUsuarioPorEmail(String email) throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
         try {
             Usuario usuario = repositorioUsuario.findByEmail(email);
             if (usuario == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
-                                "Usuario no encontrado con el email: " + email));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el email: " + email);
             }
-            return ResponseEntity.ok(usuario); // Devuelve el usuario encontrado
+            return usuario;
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> obtenerUsuarioPorTelefono(String telefono)
-            throws ErrorLogicaServicioUsuarioException {
+    public Usuario obtenerUsuarioPorTelefono(String telefono)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findByTelefono(telefono);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
-                                "Usuario no encontrado con el teléfono: " + telefono));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el teléfono: " + telefono);
             }
-            return ResponseEntity.ok(usuarioOpt.get());
+            return usuarioOpt.get();
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> obtenerUsuarioPorId(Long id) throws ErrorLogicaServicioUsuarioException {
+    public Usuario obtenerUsuarioPorId(Long id) throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el ID: " + id));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el ID: " + id);
             }
-            return ResponseEntity.ok(usuarioOpt.get());
+            return usuarioOpt.get();
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> obtenerUsuarioPorNombre(String nombre) throws ErrorLogicaServicioUsuarioException {
+    public List<Usuario> obtenerUsuarioPorNombre(String nombre) throws ErrorLogicaServicioUsuarioException {
         try {
-            List<Usuario> usuarios = repositorioUsuario.findByNombre(nombre);
-            if (usuarios.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
-                                "No se encontraron usuarios con el nombre: " + nombre));
-            }
-            return ResponseEntity.ok(usuarios);
+            return repositorioUsuario.findByNombre(nombre);
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> obtenerPorEstado(Boolean estado) throws ErrorLogicaServicioUsuarioException {
+    public List<Usuario> obtenerPorEstado(Boolean estado) throws ErrorLogicaServicioUsuarioException {
         try {
-            List<Usuario> usuarios = repositorioUsuario.findByEstado(estado);
-            if (usuarios.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR,
-                                "No se encontraron usuarios con el estado: " + estado));
-            }
-            return ResponseEntity.ok(usuarios);
+            return repositorioUsuario.findByEstado(estado);
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> obtenerTodosLosUsuarios() throws ErrorLogicaServicioUsuarioException {
+    public List<Usuario> obtenerTodosLosUsuarios() throws ErrorLogicaServicioUsuarioException {
         try {
-            List<Usuario> usuarios = repositorioUsuario.findAll();
-            if (usuarios.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "No se encontraron usuarios"));
-            }
-            return ResponseEntity.ok(usuarios);
+            return repositorioUsuario.findAll();
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> actualizarUsuario(Long id, Usuario usuarioActualizado)
-            throws ErrorLogicaServicioUsuarioException {
+    @Transactional
+    public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el ID: " + id));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el ID: " + id);
             }
-            usuarioActualizado.setId(id);
-            repositorioUsuario.save(usuarioActualizado);
-            return ResponseEntity
-                    .ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario actualizado exitosamente"));
+            Usuario existente = usuarioOpt.get();
+            // Solo actualizar campos permitidos (simplificado)
+            existente.setNombre(usuarioActualizado.getNombre());
+            existente.setApellidos(usuarioActualizado.getApellidos());
+            if (usuarioActualizado.getTelefono() != null && !usuarioActualizado.getTelefono().equals(existente.getTelefono())) {
+                // Validar duplicado de telefono
+                if (usuarioActualizado.getTelefono() != null && repositorioUsuario.findByTelefono(usuarioActualizado.getTelefono()).isPresent()) {
+                    throw new ErrorLogicaServicioUsuarioException("Teléfono ya está en uso: " + usuarioActualizado.getTelefono());
+                }
+                existente.setTelefono(usuarioActualizado.getTelefono());
+            }
+            existente.setDireccion(usuarioActualizado.getDireccion());
+            existente.setRol(usuarioActualizado.getRol());
+            if (usuarioActualizado.getContrasena() != null && !usuarioActualizado.getContrasena().isBlank()) {
+                existente.setContrasena(passwordEncoder.encode(usuarioActualizado.getContrasena()));
+            }
+            return repositorioUsuario.save(existente);
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            throw new ErrorLogicaServicioUsuarioException("Violación de integridad: " + e.getMostSpecificCause().getMessage());
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> eliminarUsuario(Long id) throws ErrorLogicaServicioUsuarioException {
+    @Transactional
+    public void eliminarUsuario(Long id) throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el ID: " + id));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el ID: " + id);
             }
             repositorioUsuario.delete(usuarioOpt.get());
-            return ResponseEntity.ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario eliminado exitosamente"));
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> cambiarEstadoUsuario(Long id, Boolean estado)
-            throws ErrorLogicaServicioUsuarioException {
+    @Transactional
+    public Usuario cambiarEstadoUsuario(Long id, Boolean estado)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el ID: " + id));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el ID: " + id);
             }
             Usuario usuario = usuarioOpt.get();
             usuario.setEstado(estado);
-            repositorioUsuario.save(usuario);
-            return ResponseEntity
-                    .ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Estado del usuario actualizado exitosamente"));
+            return repositorioUsuario.save(usuario);
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<Object> actualizarUsuarioPorId(Long id, RegistracionUsuarioDto usuarioDto)
-            throws ErrorLogicaServicioUsuarioException, UsuarioYaExisteException {
+    @Transactional
+    public Usuario actualizarUsuarioPorId(Long id, RegistracionUsuarioDto usuarioDto)
+            throws UsuarioNoEncontradoException, UsuarioYaExisteException, ErrorLogicaServicioUsuarioException {
         try {
             Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, "Usuario no encontrado con el ID: " + id));
+                throw new UsuarioNoEncontradoException("Usuario no encontrado con el ID: " + id);
             }
-
             Usuario usuario = usuarioOpt.get();
             if (!usuario.getEmail().equals(usuarioDto.getEmail())
                     && repositorioUsuario.findByEmail(usuarioDto.getEmail()) != null) {
                 throw new UsuarioYaExisteException("El email ya está en uso: " + usuarioDto.getEmail());
             }
-
             Usuario usuarioActualizado = usuarioDto.convertirDtoAUsuario();
             usuarioActualizado.setId(id);
-            repositorioUsuario.save(usuarioActualizado);
-            return ResponseEntity
-                    .ok(new ApiRespuestaDto(ApiRespuestaEstados.EXITO, "Usuario actualizado exitosamente"));
-        } catch (UsuarioYaExisteException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiRespuestaDto(ApiRespuestaEstados.ERROR, e.getMessage()));
+            // Preservar contraseña existente si DTO no trae nueva
+            if (usuarioDto.getContrasena() == null || usuarioDto.getContrasena().isBlank()) {
+                usuarioActualizado.setContrasena(usuario.getContrasena());
+            } else {
+                usuarioActualizado.setContrasena(passwordEncoder.encode(usuarioDto.getContrasena()));
+            }
+            return repositorioUsuario.save(usuarioActualizado);
+        } catch (UsuarioNoEncontradoException | UsuarioYaExisteException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            throw new ErrorLogicaServicioUsuarioException("Violación de integridad: " + e.getMostSpecificCause().getMessage());
         } catch (Exception e) {
             throw new ErrorLogicaServicioUsuarioException(e.getMessage());
         }

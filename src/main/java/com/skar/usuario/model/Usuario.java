@@ -4,11 +4,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "contrasena")
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -20,11 +28,16 @@ public class Usuario {
 
     private String nombre;
     private String apellidos;
+    @Column(unique = true)
     private String email;
+
+    @JsonIgnore
     private String contrasena;
+
+    @Column(unique = true)
     private String telefono;
     private String direccion;
-    private String rol;
+    private Rol rol;
     private Boolean estado;
 
 }
