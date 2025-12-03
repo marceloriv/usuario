@@ -42,4 +42,7 @@ public interface UsuarioService {
     Usuario actualizarUsuarioPorId(Long id, RegistracionUsuarioDto usuarioDto)
             throws UsuarioNoEncontradoException, UsuarioYaExisteException, ErrorLogicaServicioUsuarioException;
 
+    Usuario login(String email, String contrasena)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException;
+
 }

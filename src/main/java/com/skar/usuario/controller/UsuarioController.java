@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.skar.usuario.dto.ApiRespuestaDto;
 import com.skar.usuario.dto.ApiRespuestaEstados;
+import com.skar.usuario.dto.LoginDto;
 import com.skar.usuario.dto.UsuarioRespuestaDto;
 import com.skar.usuario.exception.UsuarioNoEncontradoException;
 import com.skar.usuario.dto.RegistracionUsuarioDto;
@@ -43,6 +44,18 @@ public class UsuarioController {
             throws UsuarioYaExisteException, ErrorLogicaServicioUsuarioException {
         Usuario usuario = usuarioService.registrarUsuario(nuevoUsuarioDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioRespuestaDto.from(usuario));
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "Iniciar sesión", description = "Valida credenciales y retorna información del usuario")
+    public ResponseEntity<UsuarioRespuestaDto> login(@Valid @RequestBody LoginDto loginDto)
+            throws ErrorLogicaServicioUsuarioException, UsuarioNoEncontradoException {
+        try {
+            Usuario usuario = usuarioService.login(loginDto.getEmail(), loginDto.getContrasena());
+            return ResponseEntity.ok(UsuarioRespuestaDto.from(usuario));
+        } catch (UsuarioNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/{mail}")

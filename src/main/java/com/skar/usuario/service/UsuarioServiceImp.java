@@ -227,4 +227,24 @@ public class UsuarioServiceImp implements UsuarioService {
         }
     }
 
+    @Override
+    public Usuario login(String email, String contrasena)
+            throws UsuarioNoEncontradoException, ErrorLogicaServicioUsuarioException {
+        try {
+            Usuario usuario = repositorioUsuario.findByEmail(email);
+            if (usuario == null) {
+                throw new UsuarioNoEncontradoException("Credenciales inválidas");
+            }
+            if (!passwordEncoder.matches(contrasena, usuario.getContrasena())) {
+                throw new UsuarioNoEncontradoException("Credenciales inválidas");
+            }
+            return usuario;
+        } catch (UsuarioNoEncontradoException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error al iniciar sesión: {}", e.getMessage());
+            throw new ErrorLogicaServicioUsuarioException(e.getMessage());
+        }
+    }
+
 }
