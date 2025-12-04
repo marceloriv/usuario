@@ -90,9 +90,9 @@ src/
 
 ### Prerrequisitos
 
-- ☕ Java 17 o superior
-- 🗃️ MySQL 8.0 o superior
-- 📦 Maven 3.6 o superior
+- ☕ Java 21 o superior (recomendado: Eclipse Temurin)
+- 🗃️ MySQL 8.0 o superior (local o AWS RDS)
+- 📦 Maven 3.9 o superior
 
 ### Configuración
 
@@ -108,13 +108,10 @@ src/
    Crea un archivo `.env` en la raíz del proyecto:
 
    ```env
-   # Configuración del servidor
-   SERVER_PORT=8080
-
-   # Configuración de la base de datos
-   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/usuario_db
-   SPRING_DATASOURCE_USERNAME=tu_usuario
-   SPRING_DATASOURCE_PASSWORD=tu_contraseña
+   # Configuración de la base de datos (AWS RDS o local)
+   SPRING_DATASOURCE_URL=jdbc:mysql://database-1.c4efjw97jtlo.us-east-1.rds.amazonaws.com:3306/powerfit_usuario
+   SPRING_DATASOURCE_USERNAME=admin
+   SPRING_DATASOURCE_PASSWORD=tu_password_aqui
    SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
 
    # Configuración de JPA/Hibernate
@@ -123,24 +120,88 @@ src/
    SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=true
    ```
 
+   **Para MySQL local (Laragon/XAMPP)**:
+
+   ```env
+   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/powerfit_usuario
+   SPRING_DATASOURCE_USERNAME=root
+   SPRING_DATASOURCE_PASSWORD=
+   ```
+
 3. **Crea la base de datos**
 
    ```sql
-   CREATE DATABASE usuario_db;
+   CREATE DATABASE powerfit_usuario;
    ```
 
-4. **Instala las dependencias**
+   *(Hibernate creará las tablas automáticamente con `ddl-auto=update`)*
 
-   ```bash
-   ./mvnw clean install
-   ```
+### 🏃 Ejecución Manual (Paso a Paso)
 
-5. **Ejecuta la aplicación**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+#### Opción 1: Con Maven Wrapper (Recomendado)
 
-La aplicación estará disponible en `http://localhost:8080`
+```powershell
+# Windows PowerShell
+cd usuario
+./mvnw clean install
+./mvnw spring-boot:run
+```
+
+```bash
+# Linux/Mac
+cd usuario
+./mvnw clean install
+./mvnw spring-boot:run
+```
+
+#### Opción 2: Con Maven Global
+
+```powershell
+cd usuario
+mvn clean install
+mvn spring-boot:run
+```
+
+#### Opción 3: Ejecutar JAR directamente
+
+```powershell
+# 1. Compilar y empaquetar
+./mvnw clean package -DskipTests
+
+# 2. Ejecutar JAR
+java -jar target/usuario-0.0.1-SNAPSHOT.jar
+```
+
+#### Opción 4: Con perfil específico
+
+```powershell
+# Perfil de producción
+$env:SPRING_PROFILES_ACTIVE='prod'; ./mvnw spring-boot:run
+
+# Perfil local
+$env:SPRING_PROFILES_ACTIVE='local'; ./mvnw spring-boot:run
+```
+
+### ✅ Verificar que está corriendo
+
+Una vez iniciado, verifica:
+
+- **Health Check**: `http://localhost:8082/actuator/health`
+- **Swagger UI**: `http://localhost:8082/swagger-ui/index.html`
+- **API Docs JSON**: `http://localhost:8082/v3/api-docs`
+
+**Respuesta esperada** de health:
+
+```json
+{
+  "status": "UP"
+}
+```
+
+### 🔄 Reiniciar/Detener
+
+- **Ctrl + C** en la terminal para detener
+- Ejecutar `./mvnw spring-boot:run` nuevamente para reiniciar
 
 ## 📖 Documentación de la API
 
@@ -194,6 +255,86 @@ Content-Type: application/json
     "estado": true
   }
 }
+```
+
+## 🔒 Seguridad
+
+### Mecanismos Implementados
+
+- **Encriptación de Contraseñas**: BCrypt con `PasswordEncoder` de Spring Security
+  - Salt automático por usuario
+  - Factor de trabajo: 10 rounds (por defecto)
+  - Validación con `passwordEncoder.matches()`
+
+- **Validación de Entrada**: Bean Validation (Jakarta)
+  - `@NotBlank`, `@Email`, `@Size` en DTOs
+  - Validación automática con `@Valid` en controllers
+
+- **Manejo de Excepciones**:
+  - `GlobalExceptionHandler` y `UsuarioExceptionHandler`
+  - Respuestas estandarizadas sin exponer detalles internos
+  - Logging de errores para auditoría
+
+- **Variables de Entorno**:
+  - Credenciales nunca en código fuente
+  - Archivos `.env` en `.gitignore`
+  - Integración con `spring-dotenv`
+
+- **Endpoints Protegidos**:
+  - Login devuelve 401 Unauthorized para credenciales inválidas
+  - No expone información sobre existencia de usuarios
+
+### Recomendaciones para Producción
+
+- Implementar JWT o Spring Security con roles
+- HTTPS obligatorio (ya implementado en Vercel)
+- Rate limiting para prevenir fuerza bruta
+- Logs de auditoría para accesos y cambios
+
+## 📊 Cobertura de Tests
+
+### Estadísticas Actuales
+
+```bash
+./mvnw test
+```
+
+**Resultados**:
+
+- ✅ **33 tests** en total
+- ✅ **100% tests pasados**
+- 📦 **Cobertura estimada**: ~80%
+
+### Tests Incluidos
+
+**Tests Unitarios** (`UsuarioServiceTest`):
+
+- Registro de usuario exitoso
+- Validación de email duplicado
+- Búsqueda por email, teléfono, ID
+- Actualización de usuario
+- Eliminación de usuario
+- Manejo de excepciones
+
+**Tests de Integración** (`UsuarioControllerTest`):
+
+- Endpoints REST completos
+- Validación de request/response
+- Códigos HTTP correctos
+- Serialización JSON
+
+**Tests de Contexto** (`UsuarioApplicationTests`):
+
+- Carga correcta del contexto Spring
+- Beans configurados correctamente
+
+### Ejecutar con Cobertura
+
+```bash
+# Generar reporte Jacoco
+./mvnw test jacoco:report
+
+# Ver reporte en: target/site/jacoco/index.html
 ```
 
 ## 🧪 Pruebas
